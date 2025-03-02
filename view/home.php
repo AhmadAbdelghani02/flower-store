@@ -2,11 +2,34 @@
 require_once '../db.php';
 $pdo = Database::getInstance()->getConnection();
 
-// Fetch products from the database
-$stmt = $pdo->prepare("SELECT id, name, price, image, description FROM products");
-$stmt->execute();
-$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// // Fetch products from the database
+// $stmt = $pdo->prepare("SELECT id, name, price, image, description FROM products");
+// $stmt->execute();
+// $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// // Prepare and execute the search query safely
+// $stmt = $pdo->prepare("SELECT * FROM products WHERE name LIKE :search");
+// $stmt->execute(['search' => "%$search%"]);
+// $products = $stmt->fetchAll();
+
+
+// Fetch categories from the database
+$categoryStmt = $pdo->prepare("SELECT id, name FROM categories");
+$categoryStmt->execute();
+$categories = $categoryStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch products based on category or search
+$category = isset($_GET['category']) ? trim($_GET['category']) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+$productStmt = $pdo->prepare("SELECT * FROM products WHERE (:search = '' OR name LIKE :search) AND (:category = '' OR category_id = :category)");
+$productStmt->execute(['search' => "%$search%", 'category' => $category]);
+$products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,6 +37,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
 
    <!--=============== REMIXICONS ===============-->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
@@ -87,6 +111,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                <a href="#" class="nav__social-link">
                   <i class="ri-logout-box-r-fill"></i>
                </a>
+               
             </div>
          </div>
 
@@ -101,6 +126,41 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
    <main>
       <section class="crd-container">
          <h2 class="container__title">Select Your Product</h2>
+
+          <!-- Categories Section -->
+      
+          <div class="categories">
+            <h3>Categories <i class="ri-arrow-down-s-fill"></i></h3>
+            <ul class="categories_types">
+            <li>
+                  <a href="home.php?category=" class="category-link">All</a>
+               </li>
+               <?php foreach ($categories as $category): ?>
+                  <li >
+                     <a  href="home.php?category=<?= htmlspecialchars($category['id']) ?>">
+                        <?= htmlspecialchars($category['name']) ?>
+                     </a>
+                  </li>
+               <?php endforeach; ?>
+            </ul>
+            <form class="search" method="GET" action="home.php">
+      <input class="input" type="text" name="search" placeholder="Search for flowers...">
+      <button class="btn" type="submit"><i class="fas fa-search "></i></button>
+      </form>
+         
+         </div>
+      
+
+         <!-- ____________search bar___________ -->
+         
+
+         <!-- <div class="search">
+               <input type="text" class="input" placeholder="Search...">
+               <button class="btn">
+               <i class="fas fa-search "></i>
+               </button>
+               </div> -->
+         
          <div class="card__container">
             <?php foreach ($products as $product): ?>
                <article>
