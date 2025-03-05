@@ -27,7 +27,51 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $productStmt = $pdo->prepare("SELECT * FROM products WHERE (:search = '' OR name LIKE :search) AND (:category = '' OR category_id = :category)");
 $productStmt->execute(['search' => "%$search%", 'category' => $category]);
 $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+// coupon --------------------------------------
+
+// include "config.php"; // Ensure your database connection is included
+
+$response = "Invalid request.";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST["coupon"])) {
+        $couponCode = trim($_POST["coupon"]);
+        if (empty($couponCode)) {
+            $response = "Coupon code is required.";
+        } else {
+            try {
+                $stmt = $pdo->prepare("SELECT discount, expiration_date FROM coupons WHERE code = :code");
+                $stmt->execute(["code" => $couponCode]);
+                $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($coupon) {
+                    $expirationDate = $coupon["expiration_date"];
+                    $currentDate = date("Y-m-d");
+
+                    if ($expirationDate < $currentDate) {
+                        $response = "Coupon is expired.";
+                    } else {
+                        $response = "success;" . $coupon["discount"];
+                    }
+                } else {
+                    $response = "Invalid coupon.";
+                }
+                echo $response;
+            } catch (PDOException $e) {
+                $response = "Database error: " . $e->getMessage();
+            }
+        }
+    }
+}
+
+
+
+
 ?>
+
 
 
 
@@ -44,6 +88,7 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
 
    <!--=============== BootstrapIcon ===============-->
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+   <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
 
    <link rel="stylesheet" href="./assets/css/home.css">
 
@@ -124,7 +169,27 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
 
    <!--==================== MAIN ====================-->
    <main>
+      
       <section class="crd-container">
+         <!-- checkout pop-up -->
+         <!-- <div class="modal-c" id="checkout-modal">
+    <div class="modal-content-c">
+        <span class="close-button-c" id="close-button">&times;</span>
+        <h2>Checkout</h2>
+        <p>Total Price: <span id="total-price"></span></p>
+        <div class="payment-method">
+            <label for="payment-method-select">your Payment Method: Cash on Delivery</label>
+            <select id="payment-method-select">
+                <option value="credit-card">Credit Card</option>
+                <option value="paypal">PayPal</option>
+                <option value="cash-on-delivery">Cash on Delivery</option>
+            </select>
+        </div>
+        <button id="confirm-button">Confirm Purchase</button>
+    </div>
+</div> -->
+  
+          <!-- end checkout pop-up -->
          <h2 class="container__title">Select Your Product</h2>
 
           <!-- Categories Section -->
@@ -149,17 +214,6 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
       </form>
          
          </div>
-      
-
-         <!-- ____________search bar___________ -->
-         
-
-         <!-- <div class="search">
-               <input type="text" class="input" placeholder="Search...">
-               <button class="btn">
-               <i class="fas fa-search "></i>
-               </button>
-               </div> -->
          
          <div class="card__container">
             <?php foreach ($products as $product): ?>
@@ -189,9 +243,11 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
                </article>
             <?php endforeach; ?>
          </div>
+         
       </section>
    </main>
 
+   
    <!--=============== cart ===============-->
    <div class="cart-overlay"></div>
    <div class="cart">
@@ -205,14 +261,32 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
             <strong>Total</strong>
             <span class="cart-total">0</span>
          </div>
+
+         <!-- coupon  -->
+         <div class="coupon-section">
+         <input type="text" id="coupon-code" placeholder="Enter Coupon Code">
+         <button onclick="applyCoupon()">Apply Coupon</button>
+         <p id="coupon-message"></p>
+         </div>
+         <!-- end coupon  -->
+
          <button class="cart-clear">Clear Cart</button>
-         <button class="checkout">Checkout</button>
+         <button class="checkout" id="checkout-button"><a href="./checkout.html">Checkout</a></button>
+         
+
+         
       </div>
    </div>
 
 
+
+
+
+   
+
    <!--=============== MAIN JS ===============-->
    <script src="./assets/js/home.js"></script>
+   <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> -->
 </body>
 
 </html>

@@ -737,6 +737,9 @@ a {
   display: none;
 }
 
+/* Checkout pop-up */
+
+/* end Checkout pop-up */
 @media screen and (max-width: 900px) {
   .categories_types {
     display: none;
