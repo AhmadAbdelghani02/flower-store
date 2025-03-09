@@ -26,11 +26,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Redirect based on role
             if ($user['role'] === 'super_admin') {
-                header("Location: ../superadmin_dashboard.php");
+                header("Location: ../view/home.php");
             } elseif ($user['role'] === 'admin') {
-                header("Location: ../admin_dashboard.php");
+                header("Location: ../view/home.php");
             } else {
-                header("Location: ../customer_dashboard.php");
+                header("Location: ../view/home.php");
             }
             exit();
         }
@@ -38,9 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['error_email'] = "Email doesn't exist";
         header("Location: ../view/login.html");
         exit();
-        
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
 }
-?>

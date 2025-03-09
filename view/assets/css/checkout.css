@@ -3,7 +3,7 @@
 
 /* Universal styles */
 * {
-  font-family: "Poppins", sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -21,6 +21,7 @@
   padding: 25px;
   min-height: 100vh;
   background: transparent;
+  margin-top: 35px;
 }
 
 /* Form styles */
@@ -101,7 +102,7 @@
   width: 100%;
   padding: 12px;
   font-size: 17px;
-  background: #f4b5c7;
+  background: #ab4e68;
   color: #fff;
   margin-top: 5px;
   cursor: pointer;
@@ -126,7 +127,7 @@
   width: 100%;
   padding: 12px;
   font-size: 17px;
-  background: #f4b5c7;
+  background: #ab4e68;
   color: #ffffff;
   margin-top: 5px;
   cursor: pointer;
